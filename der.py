@@ -6,7 +6,7 @@
 
 import numpy as np
 import numba as nb
-#from Francisco import gstar, dgSdx, dadx, dtda
+from Francisco import gstar, dgSdx, dadx, dtda
 from Emma import gamma, mixangle_medium, rho, l_m, active_dist
 
 # ## derivatives
@@ -34,22 +34,22 @@ def trapezoid(x,y):
 
 
 
-@nb.jit(nopython=True)
-def gstar(x, p): 
-    return p
+#@nb.jit(nopython=True)
+#def gstar(x, p): 
+#    return p
 
-@nb.jit(nopython=True)
-def dgSdx(x, p): 
-    dgstarSdx = 0
-    return dgstarSdx
+#@nb.jit(nopython=True)
+#def dgSdx(x, p): 
+#    dgstarSdx = 0
+#    return dgstarSdx
 
-@nb.jit(nopython=True)
-def dadx(x, y, p): 
-    return y[-1]/x - (y[-1]/(3*gstar(x,p[-7]))*dgSdx(x,p[-7]))
+#@nb.jit(nopython=True)
+#def dadx(x, y, p): 
+#    return y[-1]/x - (y[-1]/(3*gstar(x,p[-7]))*dgSdx(x,p[-7]))
     
-@nb.jit(nopython=True)
-def dtda(x, y, p): 
-    return ((x**2)*m_pc)/(y[-1]*np.pi)*((8*np.pi*gstar(x,p[-6])/90)**(-1/2))
+#@nb.jit(nopython=True)
+#def dtda(x, y, p): 
+#    return ((x**2)*m_pc)/(y[-1]*np.pi)*((8*np.pi*gstar(x,p[-6])/90)**(-1/2))
 
 @nb.jit(nopython=True)
 def f(x, y, p): 
