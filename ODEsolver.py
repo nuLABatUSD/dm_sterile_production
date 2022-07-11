@@ -144,8 +144,3 @@ def ODEsolver_files(x_0, y_0, dx, p, N_runs, N, dN, x_f, file_header = "file"):
             return (x, y, dx)
     print ("Did not reach x_f!")    
     return (x, y, dx)
-
-
-# - Ok so first I added these tests into my ODE solver. The goal here is to end on a certain x value (x_f) so first i see if the dx value overshoots the x_f value- if it does i print FALSE, then i want to propose another dx value to get me to x_f. So i try just saying dx = x_f - x because that seems like a good guess. THEN it will go through my step adapt which will check that dx value and see if it is a good one, if it is an ok one we will see if it lands on x_f in the SECOND TEST, and it it is a good dx and lands on x_f then we will print TRUE and the x_values, y5_results, and dx and breaks the loop. 
-# - ???BUT it still goes through the last if statement there which assigns the x and y values to these arrays I have made (only saving the amount I actually want it to save). 
-# - When I use this code, if x_f is low enough some of the files I save will be filled with just zeros. We dont want this. Changing x_values[j] = x y_results[j,:] = y   to  x_values[:(j+1)] and y_results[:(j+1),:], this will include the actual numbers and ignore all the left over zeros. I placed it in the return statement because it says start from the beginning and fill them up but only until the last j term plus 1, instead of all the terms. 
