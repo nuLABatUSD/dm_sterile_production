@@ -48,3 +48,31 @@ def l_m(eps, T_cm, T, m_s, mixangle_vacuum, L, rho):
 @nb.jit(nopython=True)
 def active_dist(eps, T_cm, T):
     return 1/(np.exp(eps*T_cm/T)+1)
+
+@nb.jit(nopython=True)
+def dfdt(x, y, p):
+    N = len(y)-3
+    m_s = p[-1]
+    mixangle_vacuum = p[-2]
+    L = 2*y[-3] + p[-4] + p[-5]
+    T = 1/x
+    T_cm = 1/y[-1]
+    r = rho(m,T)
+    dfdt_array = np.zeros(N)
+    for i in range(N):
+        dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
+    return dfdt_array
+
+def anti_dfdt(x, y, p):
+    N = 0.5*(len(y)-3)
+    N = int(N)
+    m_s = p[-1]
+    mixangle_vacuum = p[-2]
+    L = -(2*y[-3] + p[-4] + p[-5])
+    T = 1/x
+    T_cm = 1/y[-1]
+    r = rho(m,T)
+    anti_dfdt_array = np.zeros(int(N))
+    for i in range(int(N)):
+        anti_dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
+    return anti_dfdt_array

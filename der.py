@@ -9,6 +9,7 @@ import numba as nb
 from Francisco import gstar, dgSdx, dadx, dtda
 from Emma import gamma, mixangle_medium, rho, l_m, active_dist
 
+
 # ## derivatives
 
 # In[2]:
@@ -51,24 +52,52 @@ def trapezoid(x,y):
 #def dtda(x, y, p): 
 #    return ((x**2)*m_pc)/(y[-1]*np.pi)*((8*np.pi*gstar(x,p[-6])/90)**(-1/2))
 
+
+#   N = len(y)-3
+
 @nb.jit(nopython=True)
-def f(x, y, p): 
-    N = len(y)-3
+def dfdt(x, y, p):
+    N = 0.5*(len(y)-3)
+    N = int(N)
     m_s = p[-1]
     mixangle_vacuum = p[-2]
-    #L = 2*p[-3] + p[-4] + p[-5]
     L = 2*y[-3] + p[-4] + p[-5]
     T = 1/x
     T_cm = 1/y[-1]
-    n_photon = 2*riemannzeta3/(2*np.pi**2)*T**3
-    
+    r = rho(m,T)
+    dfdt_array = np.zeros(int(N))
+    for i in range(int(N)):
+        dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
+    return dfdt_array
+
+@nb.jit(nopython=True)
+def anti_dfdt(x, y, p):
+    N = 0.5*(len(y)-3)
+    N = int(N)
+    m_s = p[-1]
+    mixangle_vacuum = p[-2]
+    L = -(2*y[-3] + p[-4] + p[-5])
+    T = 1/x
+    T_cm = 1/y[-1]
+    r = rho(m,T)
+    anti_dfdt_array = np.zeros(int(N))
+    for i in range(int(N)):
+        anti_dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
+    return anti_dfdt_array
+
+@nb.jit(nopython=True)
+def f(x, y, p):
     der = np.zeros(len(y))
+    T = 1/x
+    N = 0.5*(len(y)-3)
+    N = int(N)
+    T_cm = 1/y[-1]
     der[-1] = dadx(x, y, p)
     der[-2] = dtda(x, y, p)*der[-1]
-    r = rho(m,T)
+    n_photon = 2*riemannzeta3/(2*np.pi**2)*T**3
     
-    for i in range(N):
-        der[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])*der[-2]
-    der[-3] = (-1)*((1/n_photon)*(T_cm**3/(2*np.pi**2))*trapezoid(p[:N], p[:N]**2*der[:N]) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2)))
+    der[:N] = dfdt(x, y, p)*der[-2]
+    der[N:2*N] = anti_dfdt(x, y, p)*der[-2]
+    der[-3] = (-1)*((1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*der[:N])-trapezoid(p[:N], p[:N]**2*der[N:2*N])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2)))
     return der
 
