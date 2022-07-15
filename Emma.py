@@ -1,5 +1,8 @@
 import numpy as np
 import numba as nb
+import run
+from Francisco import gstar
+import der
 
 G_F = 1.1663787e-5*(1/1000**2)
 m_pc = 1.22e22
@@ -51,7 +54,8 @@ def active_dist(eps, T_cm, T):
 
 @nb.jit(nopython=True)
 def dfdt(x, y, p):
-    N = len(y)-3
+    N = 0.5*(len(y)-3)
+    N = int(N)
     m_s = p[-1]
     mixangle_vacuum = p[-2]
     L = 2*y[-3] + p[-4] + p[-5]
@@ -63,6 +67,7 @@ def dfdt(x, y, p):
         dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
     return dfdt_array
 
+@nb.jit(nopython=True)
 def anti_dfdt(x, y, p):
     N = 0.5*(len(y)-3)
     N = int(N)
@@ -72,7 +77,19 @@ def anti_dfdt(x, y, p):
     T = 1/x
     T_cm = 1/y[-1]
     r = rho(m,T)
-    anti_dfdt_array = np.zeros(int(N))
+    anti_dfdt_array = np.zeros(N)
     for i in range(int(N)):
         anti_dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
     return anti_dfdt_array
+
+@nb.jit(nopython=True)
+def e_density(mass_s, eps, fe, anti_fe):
+    m_pc = 1.22e22
+    T_cmb = 2.369e-10
+    index = np.where(run.temp < 1/2000)[0][-1]
+    x0 = run.temp[index]
+    gss_i = der.gstar(x0, run.gss[index,:])
+    T_cm03 = (10.75/gss_i)*(4/11)*T_cmb**3 #this one needs to change p[-6] to the actual g*s,i
+    c = 8*np.pi/(3*m_pc**2)*((1/2.13e-39)**2)*mass_s/(2*np.pi**2)*T_cm03
+    oh2 = c*(der.trapezoid(eps, fe) - der.trapezoid(eps, anti_fe))
+    return oh2
