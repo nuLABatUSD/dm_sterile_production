@@ -7,7 +7,7 @@
 import numpy as np
 import numba as nb
 from Francisco import gstar, dgSdx, dadx, dtda
-from Emma import gamma, mixangle_medium, rho, l_m, active_dist
+from Emma import gamma, mixangle_medium, rho, l_m, active_dist, dfdt, anti_dfdt
 
 
 # ## derivatives
@@ -56,36 +56,6 @@ def trapezoid(x,y):
 #   N = len(y)-3
 
 @nb.jit(nopython=True)
-def dfdt(x, y, p):
-    N = 0.5*(len(y)-3)
-    N = int(N)
-    m_s = p[-1]
-    mixangle_vacuum = p[-2]
-    L = 2*y[-3] + p[-4] + p[-5]
-    T = 1/x
-    T_cm = 1/y[-1]
-    r = rho(m,T)
-    dfdt_array = np.zeros(int(N))
-    for i in range(int(N)):
-        dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
-    return dfdt_array
-
-@nb.jit(nopython=True)
-def anti_dfdt(x, y, p):
-    N = 0.5*(len(y)-3)
-    N = int(N)
-    m_s = p[-1]
-    mixangle_vacuum = p[-2]
-    L = -(2*y[-3] + p[-4] + p[-5])
-    T = 1/x
-    T_cm = 1/y[-1]
-    r = rho(m,T)
-    anti_dfdt_array = np.zeros(int(N))
-    for i in range(int(N)):
-        anti_dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T)-y[i])
-    return anti_dfdt_array
-
-@nb.jit(nopython=True)
 def f(x, y, p):
     der = np.zeros(len(y))
     T = 1/x
@@ -95,9 +65,12 @@ def f(x, y, p):
     der[-1] = dadx(x, y, p)
     der[-2] = dtda(x, y, p)*der[-1]
     n_photon = 2*riemannzeta3/(2*np.pi**2)*T**3
+    L = 2*y[-3] + p[-4] +p[-5]
+    r = rho(m, T)
+    mixangle_vacuum = p[-2]
     
-    der[:N] = dfdt(x, y, p)*der[-2]
-    der[N:2*N] = anti_dfdt(x, y, p)*der[-2]
+    der[:N] = dfdt(x, y, p, mixangle_vacuum, L, r)*der[-2]
+    der[N:2*N] = anti_dfdt(x, y, p, mixangle_vacuum, L, r)*der[-2]
     der[-3] = (-1)*((1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*der[:N])-trapezoid(p[:N], p[:N]**2*der[N:2*N])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2)))
     return der
 
