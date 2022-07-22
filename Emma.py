@@ -15,8 +15,8 @@ A = (1/np.pi**2)*2*np.sqrt(2)*riemannzeta3*G_F   #constants on V_density
 B = (7/8)*(np.pi**2/30)   #constants on rho_v_a-- energy density of active neutrinos
 
 @nb.jit(nopython=True)
-def gamma(eps, T_cm, T):
-    return 1.27*G_F**2*eps*T_cm*T**4 
+def gamma(scattering_rate, eps, T_cm, T):
+    return scattering_rate*G_F**2*eps*T_cm*T**4 
 
 @nb.jit(nopython=True)
 def rho_integrand(x, m, T): 
@@ -53,7 +53,7 @@ def active_dist(eps, T_cm, T):
     return 1/(np.exp(eps*T_cm/T)+1)
 
 @nb.jit(nopython=True)
-def dfdt(x, y, p, mixangle_vacuum, L, r):
+def dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r):
     N = 0.5*(len(y)-3)
     N = int(N)
     m_s = p[-1]
@@ -61,19 +61,20 @@ def dfdt(x, y, p, mixangle_vacuum, L, r):
     T_cm = 1/y[-1]
     dfdt_array = np.zeros(int(N))
     for i in range(int(N)):
-        dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T) - y[i])
+        dfdt_array[i] = (1/4)*gamma(p[-17], p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, L, r)*(1+((1/2)*gamma(p[-17], p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, L, r))**2)**(-1)*(active_dist(p[i], T_cm, T) - y[i])
     return dfdt_array
 
 @nb.jit(nopython=True)
-def anti_dfdt(x, y, p, mixangle_vacuum, L, r):
+def anti_dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r):
     N = 0.5*(len(y)-3)
     N = int(N)
     m_s = p[-1]
     T = 1/x
     T_cm = 1/y[-1]
+    eps = p[:N] 
     anti_dfdt_array = np.zeros(int(N))
-    for i in range(int(N)):
-        anti_dfdt_array[i] = (1/4)*gamma(p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, -L, r)*(1+((1/2)*gamma(p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, -L, r))**2)**(-1)*(active_dist(p[i], T_cm, T) - y[N+i])
+    for i in range(int(N)): 
+        anti_dfdt_array[i] = (1/4)*gamma(p[-17], p[i], T_cm, T)*mixangle_medium(p[i], T_cm, T, m_s, mixangle_vacuum, -L, r)*(1+((1/2)*gamma(p[-17], p[i], T_cm, T)*l_m(p[i], T_cm, T, m_s, mixangle_vacuum, -L, r))**2)**(-1)*(active_dist(p[i], T_cm, T) - y[N+i])
     return anti_dfdt_array
 
 @nb.jit(nopython=True)

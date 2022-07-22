@@ -19,7 +19,7 @@ G_F = 1.1663787e-5*(1/1000**2)
 m_pc = 1.22e22
 m_Z = 91.187*1000
 m_W = 80.379*1000
-m =0.511
+m = 0.511
 riemannzeta3 = 1.2020569
 A = (1/np.pi**2)*2*np.sqrt(2)*riemannzeta3*G_F   #constants on V_density
 B = (7/8)*(np.pi**2/30)   #constants on rho_v_a-- energy density of active neutrinos
@@ -65,12 +65,18 @@ def f(x, y, p):
     der[-1] = dadx(x, y, p)
     der[-2] = dtda(x, y, p)*der[-1]
     n_photon = 2*riemannzeta3/(2*np.pi**2)*T**3
-    L = 2*y[-3] + p[-4] +p[-5]
+    if p[-18] == 0:
+        L = 2*y[-3] + p[-4] +p[-5] #electron p[-18]=0
+    elif p[-18] == 1:
+        L = 2*y[-3] + p[-3] +p[-5] #muon p[-18]=1
+    else:
+        L = 2*y[-3] + p[-3] +p[-4] #tau p[-18]=2
     r = rho(m, T)
     mixangle_vacuum = p[-2]
+    scattering_constant = p[-17]
     
-    der[:N] = dfdt(x, y, p, mixangle_vacuum, L, r)*der[-2]
-    der[N:2*N] = anti_dfdt(x, y, p, mixangle_vacuum, L, r)*der[-2]
+    der[:N] = dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r)*der[-2]
+    der[N:2*N] = anti_dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r)*der[-2]
     der[-3] = (-1)*((1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*der[:N])-trapezoid(p[:N], p[:N]**2*der[N:2*N])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2)))
     return der
 
