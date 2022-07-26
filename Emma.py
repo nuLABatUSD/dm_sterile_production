@@ -86,5 +86,5 @@ def e_density(mass_s, eps, fe, anti_fe):
     gss_i = der.gstar(x0, run.gss[index,:])
     T_cm03 = (10.75/gss_i)*(4/11)*T_cmb**3 #this one needs to change p[-6] to the actual g*s,i
     c = 8*np.pi/(3*m_pc**2)*((1/2.13e-39)**2)*mass_s/(2*np.pi**2)*T_cm03
-    oh2 = c*(der.trapezoid(eps, fe) - der.trapezoid(eps, anti_fe))
+    oh2 = c*(der.trapezoid(eps, fe) + der.trapezoid(eps, anti_fe))
     return oh2
