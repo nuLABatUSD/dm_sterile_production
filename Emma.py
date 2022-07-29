@@ -1,5 +1,6 @@
 import numpy as np
 import numba as nb
+import os
 import matplotlib.pyplot as plt
 import run
 from Francisco import gstar
@@ -12,7 +13,6 @@ G_F = 1.1663787e-5*(1/1000**2)
 m_pc = 1.22e22
 m_Z = 91.187*1000
 m_W = 80.379*1000
-m =0.511
 
 riemannzeta3 = 1.2020569
 A = (1/np.pi**2)*2*np.sqrt(2)*riemannzeta3*G_F   #constants on V_density
@@ -93,7 +93,7 @@ def e_density(mass_s, eps, fe, anti_fe):
     oh2 = c*(der.trapezoid(eps, fe) + der.trapezoid(eps, anti_fe))
     return oh2
 
-def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True): 
+def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, folder_name=""): 
     index = np.where(temp < 1/2000)[0][-1]
     index2 = np.where(temp < 1/10)[0][-1]
     x0 = temp[index]
@@ -120,24 +120,29 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True):
     mixing_angle  = str(p[-2])
     lepton_number = str(p[-3])
 
-    np.savez(flavor + 'x' + lepton_number +'x'+ mixing_angle , 
-             T = 1/x, 
-             final_distribution = y[-1,:N] + y[-1,N:2*N], 
-             epsilon = p[:N], 
-             lep_evo = y[:,-3],
-             a = y[:,-1], 
-             t = y[:,-2], 
-             sterile_evo = y[:,:N],  
-             anti_sterile_evo = y[:,N:2*N],  
-             mass_s = p[-1],
-             mixangle_vacuum = p[-2], 
-             initial_electron = p[-3],
-             initial_mu = p[-4],
-             initial_tau = p[-5],
-             m = p[-16], #mass of charged lepton
-             scattering_constant = p[-17],
-             flavor_int = p[-18], #integer to specify flavor
-             omega_h2 = e_density(p[-1], p[:N], p[:N]**2*y[-1,:N], p[:N]**2*y[-1,N:2*N]))
+    if os.path.isdir('folder_name') == False:
+        os.mkdir('folder_name')
+    
+    if os.path.isdir('folder_name') == True:
+        file_name = flavor + 'x' + lepton_number +'x'+ mixing_angle
+        np.savez(folder_name + '/' + file_name, 
+                 T = 1/x, 
+                 final_distribution = y[-1,:N] + y[-1,N:2*N], 
+                 epsilon = p[:N], 
+                 lep_evo = y[:,-3],
+                 a = y[:,-1], 
+                 t = y[:,-2], 
+                 sterile_evo = y[:,:N],  
+                 anti_sterile_evo = y[:,N:2*N],  
+                 mass_s = p[-1],
+                 mixangle_vacuum = p[-2], 
+                 initial_electron = p[-3],
+                 initial_mu = p[-4],
+                 initial_tau = p[-5],
+                 m = p[-16], #mass of charged lepton
+                 scattering_constant = p[-17],
+                 flavor_int = p[-18], #integer to specify flavor
+                 omega_h2 = e_density(p[-1], p[:N], p[:N]**2*y[-1,:N], p[:N]**2*y[-1,N:2*N]))
 
     if make_plot:
         plt.figure()
