@@ -71,7 +71,7 @@ def f(x, y, p):
         L = 2*y[-3] + p[-3] +p[-5] #muon p[-18]=1
     else:
         L = 2*y[-3] + p[-3] +p[-4] #tau p[-18]=2
-    r = rho(m, T)
+    r = rho(p[-16], T)
     mixangle_vacuum = p[-2]
     scattering_constant = p[-17]
     
