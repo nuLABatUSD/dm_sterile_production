@@ -77,6 +77,6 @@ def f(x, y, p):
     
     der[:N] = dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r)*der[-2]
     der[N:2*N] = anti_dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r)*der[-2]
-    der[-3] = (-1)*((1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*der[:N])-trapezoid(p[:N], p[:N]**2*der[N:2*N])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2)))
+    der[-3] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*der[:N])-trapezoid(p[:N], p[:N]**2*der[N:2*N])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
     return der
 
