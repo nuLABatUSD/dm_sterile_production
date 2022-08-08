@@ -120,10 +120,10 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, 
     mixing_angle  = str(p[-2])
     lepton_number = str(p[-3])
 
-    if os.path.isdir('folder_name') == False:
-        os.mkdir('folder_name')
+    if os.path.isdir(folder_name) == False:
+        os.mkdir(folder_name)
     
-    if os.path.isdir('folder_name') == True:
+    if os.path.isdir(folder_name) == True:
         file_name = flavor + 'x' + lepton_number +'x'+ mixing_angle
         np.savez(folder_name + '/' + file_name, 
                  T = 1/x, 
