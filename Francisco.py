@@ -79,6 +79,32 @@ def factors(value, x):
         
         return False
     
+def xy_values_old(file_name, k): 
+    
+    dat = np.load(file_name)
+    fe = dat['f_full']
+    epsilon = dat['eps_full']
+    
+    new_epsilon = np.zeros(len(epsilon) + 1)
+    new_epsilon[1:] = epsilon
+    new_fe = np.zeros(len(fe) + 1)
+    new_fe[1:] = fe
+    
+    value = epsilon.shape[0]
+    
+    a = factors(value, k)
+    
+    if a: 
+        x = new_epsilon[::k]
+        y = np.zeros(len(x))
+
+        return x, right_rectangle(x, y, new_epsilon, new_fe, k), new_epsilon, new_fe, epsilon
+        
+    else:   
+        raise Exception(str(k) +' is not a factor of ' + str(value))
+                        
+
+                        
 def xy_values(file_name, k):
     
     dat = np.load('Neutrino Data/' + file_name)
