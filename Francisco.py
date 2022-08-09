@@ -81,9 +81,9 @@ def factors(value, x):
     
 def xy_values(file_name, k):
     
-    dat = np.load(file_name)
-    fe = dat['f_full']
-    epsilon = dat['eps_full']
+    dat = np.load('Neutrino Data/' + file_name)
+    fe = dat['final_distribution']
+    epsilon = dat['epsilon']
     
     new_epsilon = np.zeros(len(epsilon) + 1)
     new_epsilon[1:] = epsilon
