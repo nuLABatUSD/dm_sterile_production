@@ -109,9 +109,9 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, 
     y_0[:N] = f_initial
     y_0[N:2*N] = f_anti_intial
     y_0[-3:] = [L_0, 0, x0]
-    p[:N] = np.linspace(10/N, 10, N)
+    p[:N] = np.linspace(10/N, 20, N)
     p[-5:] = [L_0, L_0, L_0, mixangle_vacuum, mass_s]
-    p[-10:-5] = gs[index, :] 
+    p[-10:-5] = gs[index, :]
     p[-15:-10] = gss[index, :]
     flavor_vals = {"electron":[0,1.27,0.511], "muon":[1,1.27,105.658], "tau":[2,0.92,1777]}
     p[-18:-15] = flavor_vals[flavor]
@@ -151,6 +151,7 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, 
         plt.plot(p[:N], p[:N]**2*y[-1,:N]+p[:N]**2*y[-1,N:2*N], '--')
         plt.xlabel(r'$\epsilon$')
         plt.ylabel(r"$\epsilon^2 f$")
+        plt.legend(['$f_{\epsilon}$', '$\overline{f_{\epsilon}}$', '$f_{\epsilon} +\overline{f_{\epsilon}}$ '])
         
     omega_h2 = e_density(p[-1], p[:N], p[:N]**2*y[-1,:N], p[:N]**2*y[-1,N:2*N])
     
