@@ -93,6 +93,8 @@ def e_density(mass_s, eps, fe, anti_fe):
     oh2 = c*(der.trapezoid(eps, fe) + der.trapezoid(eps, anti_fe))
     return oh2
 
+flavor_vals = {"electron":[0,1.27,0.511], "muon":[1,1.27,105.658], "tau":[2,0.92,1777]}
+
 def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, folder_name=""): 
     index = np.where(temp < 1/2000)[0][-1]
     index2 = np.where(temp < 1/10)[0][-1]
@@ -113,9 +115,9 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, 
     p[-5:] = [L_0, L_0, L_0, mixangle_vacuum, mass_s]
     p[-10:-5] = gs[index, :]
     p[-15:-10] = gss[index, :]
-    flavor_vals = {"electron":[0,1.27,0.511], "muon":[1,1.27,105.658], "tau":[2,0.92,1777]}
+    #flavor_vals = {"electron":[0,1.27,0.511], "muon":[1,1.27,105.658], "tau":[2,0.92,1777]}
     p[-18:-15] = flavor_vals[flavor]
-    x, y , dx, s = steps_taken(x0, y_0, dx0, p, xf, index, index2)
+    x, y, dx, s = steps_taken(x0, y_0, dx0, p, xf, index, index2)
     
     mixing_angle  = str(p[-2])
     lepton_number = str(p[-3])
@@ -146,12 +148,12 @@ def sterile_production(N, flavor, mass_s, mixangle_vacuum, L_0, make_plot=True, 
 
     if make_plot:
         plt.figure()
-        plt.plot(p[:N], p[:N]**2*y[-1,:N])
-        plt.plot(p[:N], p[:N]**2*y[-1,N:2*N])
-        plt.plot(p[:N], p[:N]**2*y[-1,:N]+p[:N]**2*y[-1,N:2*N], '--')
+        plt.plot(p[:N], p[:N]**2*y[-1,:N]+p[:N]**2*y[-1,N:2*N])
+        plt.plot(p[:N], p[:N]**2*y[-1,:N], '--')
+        plt.plot(p[:N], p[:N]**2*y[-1,N:2*N], ':', linewidth=2)
         plt.xlabel(r'$\epsilon$')
         plt.ylabel(r"$\epsilon^2 f$")
-        plt.legend(['$f_{\epsilon}$', '$\overline{f_{\epsilon}}$', '$f_{\epsilon} +\overline{f_{\epsilon}}$ '])
+        plt.legend(['$f_{\epsilon} +\overline{f_{\epsilon}}$ ', '$f_{\epsilon}$', '$\overline{f_{\epsilon}}$'])
         
     omega_h2 = e_density(p[-1], p[:N], p[:N]**2*y[-1,:N], p[:N]**2*y[-1,N:2*N])
     
