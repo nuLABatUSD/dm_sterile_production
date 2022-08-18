@@ -71,14 +71,15 @@ def f(x, y, p):
     scatterconst_mu = 1.27
     scatterconst_tau = 0.92
     
-    L_e = 2*y[-3] + p[-4]/(y[-1]**3*T**3) +p[-5]/(y[-1]**3*T**3)
-    L_mu = 2*y[-4] + p[-3]/(y[-1]**3*T**3) +p[-5]/(y[-1]**3*T**3)
-    L_tau = 2*y[-5] + p[-3]/(y[-1]**3*T**3) +p[-4]/(y[-1]**3*T**3)
+    L_e = 2*y[-3] + p[-4] +p[-5]
+    L_mu = 2*y[-4] + p[-3] +p[-5]
+    L_tau = 2*y[-5] + p[-3] +p[-4]
     
     r_e = rho(0.511, T) 
     r_mu = rho(105.658, T)
     r_tau = rho(1777, T)
     
+    #dfdt's
     dfdt_e = dfdt(x, y, p, p[-16], scatterconst_e, L_e, r_e)
     dfdt_mu = dfdt(x, y, p, p[-17], scatterconst_mu, L_mu, r_mu)
     dfdt_tau = dfdt(x, y, p, p[-18], scatterconst_tau, L_tau, r_tau)
@@ -88,14 +89,15 @@ def f(x, y, p):
     anti_dfdt_tau = anti_dfdt(x, y, p, p[-18], scatterconst_tau, L_tau, r_tau)
     
     
-    der[:N] = (dfdt_e + dfdt_mu + dfdt_tau)*der[-2]
-    der[N:2*N] = (anti_dfdt_e + anti_dfdt_mu + anti_dfdt_tau)*der[-2]
     
-    der[-3] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_e)-trapezoid(p[:N], p[:N]**2*anti_dfdt_e)) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
+    der[:N] = (dfdt_e + dfdt_mu + dfdt_tau)*der[-2] ##this is dfdx after chain rule
+    der[N:2*N] = (anti_dfdt_e + anti_dfdt_mu + anti_dfdt_tau)*der[-2] #this is anti_dfdx after chain rule
     
-    der[-4] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_mu)-trapezoid(p[:N], p[:N]**2*anti_dfdt_mu)) - y[-4]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
+    der[-3] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_e*der[-2])-trapezoid(p[:N], p[:N]**2*anti_dfdt_e*der[-2])) - y[-3]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
     
-    der[-5] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_tau)-trapezoid(p[:N], p[:N]**2*anti_dfdt_tau)) - y[-5]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
+    der[-4] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_mu*der[-2])-trapezoid(p[:N], p[:N]**2*anti_dfdt_mu*der[-2])) - y[-4]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
+    
+    der[-5] = (-1)*(1/n_photon)*(T_cm**3/(2*np.pi**2))*(trapezoid(p[:N], p[:N]**2*dfdt_tau*der[-2])-trapezoid(p[:N], p[:N]**2*anti_dfdt_tau*der[-2])) - y[-5]*(3/y[-1]*der[-1] + 3*x*(-x**-2))
     
     return der
 

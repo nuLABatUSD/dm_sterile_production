@@ -128,7 +128,7 @@ def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0,
         os.mkdir(folder_name)
     
     if os.path.isdir(folder_name) == True:
-        file_name = lepton_number +'x'+ mixing_angle
+        file_name = 'three_nu' + 'x' + lepton_number +'x'+ mixing_angle
         np.savez(folder_name + '/' + file_name, 
                  T = 1/x, 
                  final_distribution = y[-1,:N] + y[-1,N:2*N], 
