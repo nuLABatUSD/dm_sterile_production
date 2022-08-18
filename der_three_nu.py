@@ -71,9 +71,9 @@ def f(x, y, p):
     scatterconst_mu = 1.27
     scatterconst_tau = 0.92
     
-    L_e = 2*y[-3] + p[-4] +p[-5]
-    L_mu = 2*y[-4] + p[-3] +p[-5]
-    L_tau = 2*y[-5] + p[-3] +p[-4]
+    L_e = 2*y[-3] + y[-4] +y[-5]
+    L_mu = 2*y[-4] + y[-3] +y[-5]
+    L_tau = 2*y[-5] + y[-3] +y[-4]
     
     r_e = rho(0.511, T) 
     r_mu = rho(105.658, T)
