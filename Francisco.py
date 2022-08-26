@@ -202,6 +202,90 @@ def ks_test(x,y,w,v,z):
         deviation.append(diff_value)
         
     return k_values, first_half, second_half, deviation
+
+def trap(f,x):
+    integral = 0
+    for i in range(1,len(f)):
+        integral += 0.5 * (f[i] + f[i-1]) * (x[i] - x[i-1])
+    return integral
+
+def R(M):
+    c = 2.5
+    G = 6.67e-11 # m^3 / kg / s^2
+    H100 = 100 * (1000/Mpc) # km/s/Mpc -> 1/s
+    omegah2 = 0.1188
+
+    rhobar = omegah2 * 3 * H100**2 / (8 * np.pi * G) / M_sol * Mpc**3 # kg / m^3 -> M_sol / Mpc^3
+    return (3 * M / (4 * np.pi * rhobar * c**3))**(1/3) # Mpc
+
+def W(k,R):
+        if np.isscalar(k):
+            if k * R > 1:
+                return 0
+            else:
+                return 1
+        else:
+            result = np.zeros(len(k))
+            for i in range(len(k)-1):
+                if k[i] * R < 1 and k[i+1] * R > 1:
+                    result[i] = (1 - k[i] * R)/(k[i+1]*R - k[i]*R)
+                elif k[i] * R < 1:
+                    result[i] = 1
+            return result
+        
+def S(M,k_vals,Pk_vals):
+        Rv = R(M)
+        
+        integrand = k_vals**2 * Pk_vals * W(k_vals, Rv)**2 / (2 * ( np.pi**2))
+        return trap(integrand,k_vals)
+
+
+def dNdlnM(M,M0,P_spline, k_vals, Pk_vals):
+    Rv = R(M)
+    return 1 / 44.5 / (6 * np.pi**2) * (M0 / M) / Rv**3 / np.sqrt(2 * np.pi * ( S(M,k_vals,Pk_vals) - S(M0,k_vals,Pk_vals))) * P_spline(1/Rv)
+
+
+def integrating(k_vals, Pk_vals, CLASS_data):    
+
+    values = np.load(CLASS_data + '.npz', allow_pickle = True)
+    
+    h = values['Class_values'].item()['h']
+    
+    M0 = 1.77e12/h # M_sol*h^-1
+    
+    P_spline  = sp.CubicSpline(k_vals,Pk_vals)
+    
+    lnM_vals = np.linspace(np.log(1e8/h),np.log(M0))
+    sv = np.zeros(len(lnM_vals)-1)
+    for i in range(len(sv)):
+        sv[i] = S(np.exp(lnM_vals[i]),k_vals,Pk_vals)- S(np.exp(lnM_vals[-1]),k_vals,Pk_vals)
+    
+    integrand = np.zeros(len(lnM_vals)-1)
+    
+    for i in range(len(integrand)):
+        integrand[i] = dNdlnM(np.exp(lnM_vals[i]),M0,P_spline,k_vals,Pk_vals)
+        
+    integral = trap(integrand,lnM_vals[:-1])
+                
+    return integral, integrand, sv, lnM_vals
+
+##alpha return is the Number of Subhalos 
+def Bella_2(file_name, k): ##.npz as first input and step size as the second
+    
+    dat = np.load('Neutrino Data/' + file_name)
+
+    omega_h_h = dat['omega_h2']
+    a,b,c,d,e = xy_values(file_name, k)
+    np.savetxt("Spec", np.column_stack((a,b)))
+    spec_file  = 'Spec'
+    
+    make_Pk(spec_file, omega_h_h,'CLASS_values')
+    
+    k_vals = np.load('Spec-knew.npy')
+    Pk_vals = np.load('Spec-Pknew.npy')
+    alpha, beta, gamma, delta = integrating(k_vals, Pk_vals, 'CLASS_values')
+    
+    return alpha, beta, gamma, delta
    
 # In[ ]:
 
