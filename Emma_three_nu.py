@@ -121,8 +121,8 @@ def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0,
     p[-18] = mixangv_tau
     x, y, dx, s = steps_taken(x0, y_0, dx0, p, xf, index, index2)
     
-    mixing_angle  = str(p[-16])
-    lepton_number = str(p[-3])
+    mixing_angle  = np.format_float_scientific(p[-16], precision = 2)
+    lepton_number = np.format_float_scientific(p[-3], precision = 2)
 
     if os.path.isdir(folder_name) == False:
         os.mkdir(folder_name)
