@@ -41,7 +41,7 @@ if __name__ == '__main__':
             run_list.append((mixang[i], lep0[j]))
             new_list.append((i,j))
         
-    p = mp.Pool(2)
+    p = mp.Pool(4)
     new_start_time = time.time()
     
     res = p.starmap(plot_contour, run_list)
