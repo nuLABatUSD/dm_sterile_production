@@ -50,7 +50,7 @@ if __name__ == '__main__':
     p.join()
     
     print("Parallel, elapsed time = {} seconds".format(time.time()-new_start_time))
-    print(res)
+    #print(res)
     
     np.savez("results", results = res, mixangle = mixang, L0 = lep0, index = new_list)
     

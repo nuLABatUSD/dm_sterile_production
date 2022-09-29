@@ -65,7 +65,7 @@ def right_rectangle(x, y,new_epsilon, new_fe, steps):
     y[1] = (area)/((x[1] - x[0])*x[2]**2)
     for i in range(1,len(x)-1):
         m = steps*i
-        n = m + 5 
+        n = m + steps
         area = trapezoid(new_epsilon[m:n],new_epsilon[m:n]**(2)*new_fe[m:n])
         y[i + 1] =(area)/((x[i + 1] - x[i])*x[i + 1]**2)
     return y
@@ -228,7 +228,7 @@ LambdaCDM_settings = {
     'output':'mPk',
     'P_k_max_1/Mpc':100.0,
     'ncdm_fluid_approximation':3,
-    'background_verbose':1
+    'background_verbose':0
 }
 
 def make_Class_dict(NH, k, pkNH):
@@ -338,7 +338,8 @@ ncdm_settings = {
           'N_ncdm':1,
           'use_ncdm_psd_files': 1,
           'm_ncdm': 7100,
-          'T_ncdm':0.7
+          'T_ncdm':0.7,
+          'ncdm_maximum_q':20
 }
 def ideal_sigma8 (spec_file, omega_h_h):
     
