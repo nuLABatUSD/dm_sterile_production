@@ -6,7 +6,7 @@
 
 import numpy as np
 import numba as nb
-from der_three_nu import f
+from derivatives import f
 
 
 # In[2]:
