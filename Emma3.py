@@ -2,12 +2,10 @@ import numpy as np
 import numba as nb
 import os
 import matplotlib.pyplot as plt
-import run_three_nu as run
 from Francisco import gstar
-import derivatives as der
-import ODEsolver_three_nu as solve
 from run_three_nu import g, temp, gs, gss
 from run_three_nu import with_spline_ODE, steps_taken
+
 
 G_F = 1.1663787e-5*(1/1000**2)
 m_pc = 1.22e22
@@ -17,6 +15,15 @@ m_W = 80.379*1000
 riemannzeta3 = 1.2020569
 A = (1/np.pi**2)*2*np.sqrt(2)*riemannzeta3*G_F   #constants on V_density
 B = (7/8)*(np.pi**2/30)   #constants on rho_v_a-- energy density of active neutrinos
+
+@nb.jit(nopython=True)
+def trapezoid(x,y):
+    N=len(x)
+    summ = 0
+    for i in range(N-1):
+        I = 0.5*(y[i]+ y[i+1])*(x[i+1] - x[i])
+        summ = summ + I
+    return summ
 
 @nb.jit(nopython=True)
 def gamma(scattering_rate, eps, T_cm, T):
@@ -85,14 +92,13 @@ def anti_dfdt(x, y, p, mixangle_vacuum, scattering_constant, L, r):
 def e_density(mass_s, eps, fe, anti_fe):
     m_pc = 1.22e22
     T_cmb = 2.369e-10
-    index = np.where(run.temp < 1/2000)[0][-1]
-    x0 = run.temp[index]
-    gss_i = der.gstar(x0, run.gss[index,:])
+    index = np.where(temp < 1/2000)[0][-1]
+    x0 = temp[index]
+    gss_i = gstar(x0, gss[index,:])
     T_cm03 = (10.75/gss_i)*(4/11)*T_cmb**3
     c = 8*np.pi/(3*m_pc**2)*((1/2.13e-39)**2)*mass_s/(2*np.pi**2)*T_cm03
-    oh2 = c*(der.trapezoid(eps, fe) + der.trapezoid(eps, anti_fe))
+    oh2 = c*(trapezoid(eps, fe) + trapezoid(eps, anti_fe))
     return oh2
-
 
 def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0, Ltau0, make_plot=True, folder_name=""): 
     index = np.where(temp < 1/2000)[0][-1]
