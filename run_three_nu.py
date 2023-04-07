@@ -6,7 +6,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import ODEsolver_three_nu as solve
-import der_three_nu as derivatives
+from Francisco import gstar
 import numba as nb
 
 # In[2]:
@@ -50,7 +50,7 @@ def steps_taken(x0, y_0, dx0, p, xf, index, index2):
         x, y, dx = with_spline_ODE(x0, y_0, dx0, p, xf)
         y_0 = y
         dx0 = dx
-        entropy = 2 * np.pi**2 / 45 * derivatives.gstar(x,p[-15:-10]) * y[-1]**3 * x**-3
+        entropy = 2 * np.pi**2 / 45 * gstar(x,p[-15:-10]) * y[-1]**3 * x**-3
         entropy_values[i]  = entropy
         temp_array[i] = x
         y_array[i,:] = y
