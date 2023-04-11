@@ -100,7 +100,7 @@ def e_density(mass_s, eps, fe, anti_fe):
     oh2 = c*(trapezoid(eps, fe) + trapezoid(eps, anti_fe))
     return oh2
 
-def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0, Ltau0, make_plot=True, folder_name=""): 
+def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0, Ltau0, make_plot=True, folder_name="", file_prefix="three_nu"): 
     index = np.where(temp < 1/2000)[0][-1]
     index2 = np.where(temp < 1/10)[0][-1]
     x0 = temp[index]
@@ -127,14 +127,14 @@ def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0,
     p[-18] = mixangv_tau
     x, y, dx, s = steps_taken(x0, y_0, dx0, p, xf, index, index2)
     
-    mixing_angle  = np.format_float_scientific(p[-16], precision = 2)
-    lepton_number = np.format_float_scientific(p[-3], precision = 2)
+    mixing_angle  = np.format_float_scientific(mixangv_tot, precision = 2, unique=False)
+    lepton_number = np.format_float_scientific(p[-3], precision = 2, unique=False)
 
     if os.path.isdir(folder_name) == False:
         os.mkdir(folder_name)
     
     if os.path.isdir(folder_name) == True:
-        file_name = 'three_nu' + 'x' + lepton_number +'x'+ mixing_angle
+        file_name = file_prefix + 'x' + lepton_number +'x'+ mixing_angle
         np.savez(folder_name + '/' + file_name, 
                  T = 1/x, 
                  final_distribution = y[-1,:N] + y[-1,N:2*N], 
