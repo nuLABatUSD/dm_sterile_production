@@ -41,7 +41,7 @@ if __name__ == '__main__':
             run_list.append((mixang[i], lep0[j]))
             new_list.append((i,j))
         
-    p = mp.Pool(2)
+    p = mp.Pool(4)
     new_start_time = time.time()
     
     res = p.starmap(plot_contour, run_list)
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     p.join()
     
     print("Parallel, elapsed time = {} seconds".format(time.time()-new_start_time))
-    print(res)
+    #print(res)
     
     np.savez("results", results = res, mixangle = mixang, L0 = lep0, index = new_list)
     
