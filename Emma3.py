@@ -100,7 +100,7 @@ def e_density(mass_s, eps, fe, anti_fe):
     oh2 = c*(trapezoid(eps, fe) + trapezoid(eps, anti_fe))
     return oh2
 
-def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0, Ltau0, make_plot=True, folder_name="", file_prefix="three_nu"): 
+def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0, Ltau0, make_plot=True, folder_name="", file_prefix = "three_nu"): 
     index = np.where(temp < 1/2000)[0][-1]
     index2 = np.where(temp < 1/10)[0][-1]
     x0 = temp[index]
