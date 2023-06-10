@@ -1285,9 +1285,8 @@ int background_ncdm_distribution(
 
 /************************************************/
 /* Fit for sterile DM with exponential tail, cold thermal peak, and gaussian */
+/* Old fit
 /*
-/************************************************/
-
 	double eps_0 = param[0];
 	double mexp  = param[1];
 	double f0exp = param[2];
@@ -1306,6 +1305,32 @@ int background_ncdm_distribution(
 	double mid_gauss = n0 * exp( - (q - m0) * (q - m0) / (2 * s0 * s0) );
 
 	*f0 = tail + low_peak + mid_gauss;
+/************************************************/
+
+/************************************************/
+/* Fit for sterile DM with exponential tail, cold thermal peak, and gaussian */
+/*
+/************************************************/
+	double eps_0 = param[0];
+	double mexp  = param[1];
+	double f0exp = param[2];
+
+	double tail = exp( mexp * (q - eps_0) + f0exp );
+	
+	double a = param[3];
+	double b = param[4];
+	double c = param[5];
+	double d = param[6];
+
+	double exp_cube = d/(exp(a*q*q + b*q + c) + 1);
+
+	double m0 = param[7];
+	double s0 = param[8];
+	double n0 = param[9] * 1.e-6;
+
+	double mid_gauss = n0 * exp( - (q - m0) * (q - m0) / (2 * s0 * s0) );
+
+	*f0 = tail + exp_cube + mid_gauss;
 
     if (_FALSE_) {
 

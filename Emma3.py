@@ -16,6 +16,18 @@ riemannzeta3 = 1.2020569
 A = (1/np.pi**2)*2*np.sqrt(2)*riemannzeta3*G_F   #constants on V_density
 B = (7/8)*(np.pi**2/30)   #constants on rho_v_a-- energy density of active neutrinos
 
+
+def create_filename(folder, filename, L0, mix):
+    mixing_angle  = np.format_float_scientific(mix, precision = 2, unique=False)
+    lepton_number = np.format_float_scientific(L0, precision = 2, unique=False)
+
+    fn = folder + "/" + filename + 'x' + lepton_number +'x'+ mixing_angle
+    
+    return fn
+
+def create_full_filename(folder, filename, Le0, Lmu0, Ltau0, mixangv_e, mixangv_mu, mixangv_tau):
+    return create_filename(folder, filename, Le0, mixangv_e+mixangv_mu+mixangv_tau)
+
 @nb.jit(nopython=True)
 def trapezoid(x,y):
     N=len(x)
@@ -127,15 +139,13 @@ def sterile_production(N, mass_s, mixangv_e, mixangv_mu, mixangv_tau, Le0, Lmu0,
     p[-18] = mixangv_tau
     x, y, dx, s = steps_taken(x0, y_0, dx0, p, xf, index, index2)
     
-    mixing_angle  = np.format_float_scientific(mixangv_tot, precision = 2, unique=False)
-    lepton_number = np.format_float_scientific(p[-3], precision = 2, unique=False)
-
+    fn = create_full_filename(folder_name, file_prefix, Le0, Lmu0, Ltau0, mixangv_e, mixangv_mu, mixangv_tau)
+    
     if os.path.isdir(folder_name) == False:
         os.mkdir(folder_name)
     
     if os.path.isdir(folder_name) == True:
-        file_name = file_prefix + 'x' + lepton_number +'x'+ mixing_angle
-        np.savez(folder_name + '/' + file_name, 
+        np.savez(fn, 
                  T = 1/x, 
                  final_distribution = y[-1,:N] + y[-1,N:2*N], 
                  epsilon = p[:N], 
