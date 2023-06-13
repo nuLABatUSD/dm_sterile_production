@@ -69,12 +69,15 @@ def par3(eps, fe):
     mexp = np.log(fe[index_high]/fe[ind_sl]) / (eps[index_high]-eps[ind_sl])
     f0exp = np.log(fe[index_high])
     eps_0 = eps[index_high]
+    
+    return fit_low_peak(eps, fe, eps_0, mexp, f0exp)
 
+@nb.jit(nopython=True)
+def fit_low_peak(eps, fe, eps_0, mexp, f0exp):
     diff = fe - f_exp_tail(eps, eps_0, mexp, f0exp)
 
     index_fit_low_peak = np.where(eps < 2)[0][-1]
 
-    am = np.linspace(-2,-0.01,200)
     am = np.linspace(0.01,2,200)
     bm = np.linspace(-4,4,100)
     cm = np.linspace(-10,10,100)
@@ -103,6 +106,10 @@ def par3(eps, fe):
 
     DL = Dm[np.where(msd == np.min(msd))[0][0]]    
 
+    return fit_mid_gauss(eps, fe, eps_0, mexp, f0exp, aL, bL, cL, DL)
+
+@nb.jit(nopython=True)
+def fit_mid_gauss(eps, fe, eps_0, mexp, f0exp, aL, bL, cL, DL):
     gm = np.linspace(1,10,100)
     sm = np.linspace(0.3,5,100)
     nm = np.linspace(0.00001,0.001,100)
@@ -124,15 +131,67 @@ def par3(eps, fe):
     
     return eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0
 
+def par4(eps, fe):
+    cdf_sn  = cdf_faster(eps, fe)
+    index = np.where(cdf_sn > 0.99)[0][0]
+    es = eps[index:]
+    fs = fe[index:]
+        
+    zz = np.polyfit(es,np.log(fs),1)
+    index2 = np.where(cdf_sn > 0.90)[0][0]
+    return par4_nb(eps, fe, zz[0], zz[1], index2)
+
+
+@nb.jit(nopython=True)
+def par4_nb(eps, fe, A0, B0, index2):
+    es2 = eps[index2:]
+    fs2 = fe[index2:]
+    es2c = eps[:index2]
+    fs2c = fe[:index2]
+
+    AA = np.linspace(0.9*A0, 1.1*A0, 200)
+    BB = np.linspace(0.9*B0, 1.1*B0, 200)    
+    msd = np.zeros((len(AA), len(BB)))
+    
+    for i in range(len(AA)):
+        for j in range(len(BB)):
+            if np.min(fs2c - f_exp_tail(es2c, 0, AA[i], BB[j])) < 0:
+                msd[i,j] = 100
+            else:
+                msd[i,j] = np.sum((es2**2 * fs2 - es2**2 * f_exp_tail(es2, 0, AA[i], BB[j]))**2)
+    
+    w = np.where(msd == np.amin(msd))
+    aa, bb = AA[w[0][0]], BB[w[1][0]]
+    
+    return fit_low_peak(eps, fe, 0, aa, bb)
+    
+
 def fit_params(filename, show_plot=True):
     npz = np.load(filename)
     eps = npz['epsilon']
     fe = npz['final_distribution']
     
     eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0 = par3(eps, fe)
-    if show_plot:
-        fapp = new_approx(eps, eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0)
+    fapp = new_approx(eps, eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0)
+    
+    cdf_sn = cdf_faster(eps, fe)
+    cdf_ap = cdf_faster(eps, fapp)
+
+    cdf_dev = np.max(np.abs(cdf_sn - cdf_ap))
+    
+    if cdf_dev > 0.01:
+        pp = par4(eps, fe)
         
+        cdf_app = cdf_faster(eps, new_approx(eps, pp[0], pp[1], pp[2], pp[3], pp[4], pp[5], pp[6], pp[7], pp[8], pp[9]))
+        if np.max(np.abs(cdf_sn - cdf_app)) < cdf_dev:
+            eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0 = pp
+            fapp = new_approx(eps, eps_0, mexp, f0exp, aL, bL, cL, DL, m0, s0, n0)                
+    
+    if show_plot:
+        if eps_0 > 0:
+            print("par3, {:.5}".format(cdf_dev))
+        else:
+            print("par4, {:.5}".format(np.max(np.abs(cdf_sn - cdf_app))))
         plt.figure()
         plt.plot(eps, eps**2*fe, linestyle='--')
         plt.plot(eps, eps**2 * f_exp_tail(eps, eps_0, mexp, f0exp))
