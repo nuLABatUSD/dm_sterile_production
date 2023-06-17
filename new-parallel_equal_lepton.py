@@ -4,11 +4,11 @@ import time
 import Num_SH_fast as NSH
 import os
 
-Run_index = 0
-folder = ["New-ThreeEqual", "New-E_Mu", "New-Tau", "New-AllTau", "New-AllMu"]
-file_header = ["three_equal", "mostly_emu", "mostly_tau", "all_tau", "all_mu"]
+Run_index = 5
+folder = ["New-ThreeEqual", "New-E_Mu", "New-Tau", "New-AllTau", "New-AllMu", "New-Mu"]
+file_header = ["three_equal", "mostly_emu", "mostly_tau", "all_tau", "all_mu", "mostly_mu"]
 
-mult_factor = [[1./3, 1./3, 1./3], [10./21, 10./21, 1./21], [1./12, 1./12, 10./12], [0, 0, 1], [0, 1, 0]]
+mult_factor = [[1./3, 1./3, 1./3], [10./21, 10./21, 1./21], [1./12, 1./12, 10./12], [0, 0, 1], [0, 1, 0], [1./12, 10./12, 1./12]]
 
 run_all = False
 
