@@ -4,16 +4,16 @@ import time
 import Num_SH_fast as NSH
 import os
 
-New_index_L = 4
+New_index_L = 3
 
-mult_factor = [[1./3, 1./3, 1./3], [10./21, 10./21, 1./21], [1./12, 1./12, 10./12], [1./12, 10./12, 1./12]]
+mult_factor = [[1./3, 1./3, 1./3], [10./21, 10./21, 1./21], [1./12, 1./12, 10./12], [1./12, 10./12, 1./12], [0.5, 0, 0.5]]
 
-mult_L_factor = [[0.75,0.75,1.25], [1.25,1.25,0.75], [0.75,1.25,0.75]]
-mix_index = [0,0,0]
+mult_L_factor = [[0.75,0.75,1.25], [1.25,1.25,0.75], [0.75,1.25,0.75], [2,0,-2]]
+mix_index = [0,0,0,4]
 New_index_mult = mix_index[New_index_L]
 
-L_folder = ["New-ThreeEqual-TauL", "New-ThreeEqual-EMuL", "New-ThreeEqual-MuL"]
-L_file_header = ["three_equal_tauL", "three_equal_emuL", "three_equal_muL"]
+L_folder = ["New-ThreeEqual-TauL", "New-ThreeEqual-EMuL", "New-ThreeEqual-MuL", "New-OppoL"]
+L_file_header = ["three_equal_tauL", "three_equal_emuL", "three_equal_muL", "oppo"]
 
 run_all = False
 
